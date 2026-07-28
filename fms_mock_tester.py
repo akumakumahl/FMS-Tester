@@ -31,8 +31,8 @@ def _get_base_dir():
         # 開發階段：直接執行 .py 時，放在 .py 檔案所在的目錄
         return os.path.dirname(os.path.abspath(__file__))
 
-
-CONFIG_PATH = os.path.join(_get_base_dir(), "fms_tester_config.json")
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "fms_tester_config.json")
 
 
 def load_external_config():
