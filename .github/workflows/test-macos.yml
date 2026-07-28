@@ -33,7 +33,10 @@ jobs:
 
       - name: Build macOS app
         run: |
-          pyinstaller FMS_Tester.spec
+          pyinstaller \
+            --windowed \
+            --name FMS_Tester \
+            FMS_Tester.py
 
       - name: Verify build
         run: |
