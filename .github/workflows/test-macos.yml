@@ -30,3 +30,12 @@ jobs:
           python --version
           python -c "import tkinter; print('Tkinter OK')"
           pyinstaller --version
+
+      - name: Build macOS app
+        run: |
+          pyinstaller FMS_Tester.spec
+
+      - name: Verify build
+        run: |
+          ls -lah dist
+          test -d "dist/FMS_Tester.app"
