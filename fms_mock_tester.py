@@ -10,10 +10,24 @@ import websocket
 
 
 def _get_base_dir():
-    """設定檔統一放在使用者家目錄下，不管是直接跑 .py、Windows 單一 exe、
-    還是 macOS 打包成 .app（執行檔實際上藏在 .app/Contents/MacOS/ 深處），
-    路徑都一致、好找，使用者不需要去翻 App 包內部。"""
-    return os.path.expanduser("~")
+    """取得執行檔所在的目錄。
+    不管是直接跑 .py、Windows 的 .exe，或是 macOS 的 .app，
+    設定檔都放在與執行檔（或 .app）同層的目錄下。
+    """
+    # 判斷是否為 PyInstaller 打包後的環境
+    if getattr(sys, 'frozen', False):
+        # 取得實際執行檔的目錄
+        exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+        
+        # macOS 特殊處理：若在 .app 內，sys.executable 會在 XXX.app/Contents/MacOS/ 裡
+        # 往上跳三層，讓設定檔跟 XXX.app 放在同一個目錄
+        if sys.platform == "darwin" and "Contents/MacOS" in exe_dir:
+            return os.path.abspath(os.path.join(exe_dir, "../../.."))
+        
+        return exe_dir
+    else:
+        # 開發階段：直接執行 .py 時，放在 .py 檔案所在的目錄
+        return os.path.dirname(os.path.abspath(__file__))
 
 
 CONFIG_PATH = os.path.join(_get_base_dir(), "fms_tester_config.json")
