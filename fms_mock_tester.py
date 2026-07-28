@@ -1,45 +1,43 @@
 import json
 import os
 import ssl
+import sys
 import time
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import paho.mqtt.client as mqtt
 import websocket
-import sys
-import os
 
 
 def _get_base_dir():
-    """取得執行檔所在的目錄。
-    不管是直接跑 .py、Windows 的 .exe，或是 macOS 的 .app，
-    設定檔都放在與執行檔（或 .app）同層的目錄下。
+    """回傳要去找設定檔的資料夾。
+
+    - 直接執行 .py：跟 .py 檔案同一層，方便開發時使用。
+    - 封裝成 Windows 單一 exe：sys.executable 就是使用者看到的那個 .exe，同一層即可。
+    - 封裝成 macOS .app：sys.executable 實際指向 .app/Contents/MacOS/<name>，
+      要往上跳三層（MacOS -> Contents -> .app 本身 -> .app 所在的資料夾），
+      這樣設定檔才會跟 .app 放在同一層，使用者直接看得到、放得到，
+      不用鑽進 App 包內部。
     """
-    # 判斷是否為 PyInstaller 打包後的環境
-    if getattr(sys, 'frozen', False):
-        # 取得實際執行檔的目錄
+    if getattr(sys, "frozen", False):
         exe_dir = os.path.dirname(os.path.abspath(sys.executable))
-        
-        # macOS 特殊處理：若在 .app 內，sys.executable 會在 XXX.app/Contents/MacOS/ 裡
-        # 往上跳三層，讓設定檔跟 XXX.app 放在同一個目錄
         if sys.platform == "darwin" and "Contents/MacOS" in exe_dir:
             return os.path.abspath(os.path.join(exe_dir, "../../.."))
-        
         return exe_dir
-    else:
-        # 開發階段：直接執行 .py 時，放在 .py 檔案所在的目錄
-        return os.path.dirname(os.path.abspath(__file__))
+    return os.path.dirname(os.path.abspath(__file__))
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "fms_tester_config.json")
+
+_BASE_DIR = _get_base_dir()
+CONFIG_PATH = os.path.join(_BASE_DIR, "fms_tester_config.json")
 
 
 def load_external_config():
-    """從程式同層的 fms_tester_config.json 讀取 broker 連線資訊（host/port/帳密/ws url）。
-    這樣帳密就不會寫死在原始碼或編譯後的 exe 裡，每個人可以用自己的設定檔，
-    也方便之後帳密異動時不用重新編譯程式。找不到檔案或格式錯誤時回傳空字典，
-    UI 會照舊使用空白欄位，由使用者手動輸入即可，行為跟以前一樣。"""
+    """從程式（或 exe/app）同層的 fms_tester_config.json 讀取 broker 連線資訊
+    （host/port/帳密/ws url）。這樣帳密就不會寫死在原始碼或編譯後的 exe 裡，
+    每個人可以用自己的設定檔，也方便之後帳密異動時不用重新編譯程式。
+    找不到檔案或格式錯誤時回傳空字典，UI 會照舊使用空白欄位，
+    由使用者手動輸入即可。"""
     if not os.path.exists(CONFIG_PATH):
         return {}
     try:
