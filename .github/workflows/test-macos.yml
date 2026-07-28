@@ -1,0 +1,29 @@
+name: Test macOS Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-15-intel
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Show macOS version
+        run: |
+          sw_vers
+
+      - name: Show architecture
+        run: |
+          uname -m
+
+      - name: Show Python
+        run: |
+          python3 --version
+          which python3
+
+      - name: Check Tkinter
+        run: |
+          python3 -c "import tkinter; print('Tkinter OK')"
