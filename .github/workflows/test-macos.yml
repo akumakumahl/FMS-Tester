@@ -43,8 +43,13 @@ jobs:
           ls -lah dist
           test -d "dist/FMS_Tester.app"
 
+      - name: Create Zip for macOS App
+        run: |
+          cd dist
+          zip -r FMS_Tester-macOS.zip FMS_Tester.app
+
       - name: Upload macOS app
         uses: actions/upload-artifact@v4
         with:
           name: FMS_Tester-macOS
-          path: dist/FMS_Tester.app
+          path: dist/FMS_Tester.zip
