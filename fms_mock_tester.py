@@ -57,7 +57,7 @@ DEFAULT_MQTT_PORT = _EXTERNAL_CONFIG.get("mqtt_port", 8883)
 DEFAULT_MQTT_USER = _EXTERNAL_CONFIG.get("mqtt_user", "")
 DEFAULT_MQTT_PASS = _EXTERNAL_CONFIG.get("mqtt_pass", "")
 
-DEFAULT_WS_URL = _EXTERNAL_CONFIG.get("ws_url", "ws://localhost:3000")
+DEFAULT_WS_URL = _EXTERNAL_CONFIG.get("ws_url", "wss://mqtt-gateway-stage.hino-itraq.com.tw/ws")
 DEFAULT_DEVICE_ID = "111112222239999"
 DEFAULT_SID = "01KY8WT171C5N4692VTXDMYPR7"
 # 發送 Inform 用的 Topic 樣板，可用 {device_id} / {device_type} 動態帶入
