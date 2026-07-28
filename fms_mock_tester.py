@@ -619,7 +619,14 @@ class FmsTesterApp(tk.Tk):
             on_error=on_error,
             on_close=on_close
         )
-        self.ws_app.run_forever()
+        # 加上 sslopt 繞過 SSL 憑證驗證
+        self.ws_app.run_forever(
+            sslopt={
+                "cert_reqs": ssl.CERT_NONE,
+                "check_hostname": False
+            }
+        )
+        #self.ws_app.run_forever()
 
     def _switch_device(self):
         """在 WebSocket 已連線的狀態下，切換訂閱到輸入框目前的 Device ID，不需重新連線。"""
