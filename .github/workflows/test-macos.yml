@@ -39,3 +39,9 @@ jobs:
         run: |
           ls -lah dist
           test -d "dist/FMS_Tester.app"
+
+      - name: Upload macOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: FMS_Tester-macOS
+          path: dist/FMS_Tester.app
