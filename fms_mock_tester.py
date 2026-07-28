@@ -7,6 +7,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import paho.mqtt.client as mqtt
 import websocket
+import sys
+import os
 
 
 def _get_base_dir():
