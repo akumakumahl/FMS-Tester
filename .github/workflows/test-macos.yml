@@ -1,29 +1,22 @@
-name: Test macOS Runner
+name: Build macOS App
 
 on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: macos-15-intel
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Show macOS version
-        run: |
-          sw_vers
-
-      - name: Show architecture
-        run: |
-          uname -m
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
 
       - name: Show Python
         run: |
-          python3 --version
-          which python3
-
-      - name: Check Tkinter
-        run: |
-          python3 -c "import tkinter; print('Tkinter OK')"
+          python --version
+          which python
