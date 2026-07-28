@@ -36,7 +36,7 @@ jobs:
           pyinstaller \
             --windowed \
             --name FMS_Tester \
-            FMS_Tester.py
+            fms_mock_tester.py
 
       - name: Verify build
         run: |
