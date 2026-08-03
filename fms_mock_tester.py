@@ -65,7 +65,7 @@ AUTO_PLAY_STEP_DELAY = 1.5
 class FmsTesterApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("FMS 車機模擬器 & 狀態視覺化工具_v0.2")
+        self.title("FMS 車機模擬器 & 狀態視覺化工具_v0.6")
         self.geometry("1200x780")
         self.minsize(1000, 650)
 
