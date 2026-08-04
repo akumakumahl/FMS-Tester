@@ -65,7 +65,7 @@ AUTO_PLAY_STEP_DELAY = 1.5
 class FmsTesterApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("FMS 車機模擬器 & 狀態視覺化工具_v0.7")
+        self.title("FMS 車機模擬器 & 狀態視覺化工具_v0.71")
         self.geometry("1200x780")
         self.minsize(1000, 650)
 
@@ -262,6 +262,10 @@ class FmsTesterApp(tk.Tk):
                    command=lambda: self._load_flow_preset("TBOX_LOW_BATTERY")).grid(row=4, column=2, **b)
         ttk.Button(flow_group, text="D-異. 逾時熄火 ❌",
                    command=lambda: self._load_flow_preset("SHUTDOWN_TIMEOUT")).grid(row=4, column=3, **b)
+
+        ttk.Label(flow_group, text="熄火確認:", font=("Helvetica", 8, "bold")).grid(row=5, column=0, sticky=tk.W, padx=(0, 3), pady=(6, 0))
+        ttk.Button(flow_group, text="E. TBOX 熄火確認 ✅（can_restart → true）",
+                   command=lambda: self._load_flow_preset("TBOX_ENGINE_OFF")).grid(row=5, column=1, columnspan=2, **b)
         ttk.Button(flow_group, text="E. TBOX 熄火確認 ✅（開放重啟）",
                    command=lambda: self._load_flow_preset("TBOX_ENGINE_OFF")).grid(row=5, column=1, columnspan=2, **b)
 
@@ -556,6 +560,15 @@ class FmsTesterApp(tk.Tk):
                     "key": 0, "brake": 0, "acc_ign": 0,
                     "eng_start": 0, "start_time": now_ts - 420
                 }
+            },
+            # E. TBOX 熄火確認（PUB_CAR_STATUS_OFF_INFO）
+            # 觸發 confirmEngineOffByTbox()，讓 can_restart 從 false 變成 true。
+            # 必須在 Session 進入終態（COMPLETED/FAILED/TIMEOUT/ABORTED）之後發送才有效果。
+            "TBOX_ENGINE_OFF": {
+                "sid": sid, "time": now_ts, "tbox_imei": device_id,
+                "info": "PUB_CAR_STATUS_OFF_INFO",
+                "status": {"acc_status": 0, "handbrake": 1, "battery": 23.5},
+                "can": {"totalMileage": 12500, "fuelLevel": 75, "rpm": 0, "dtc": []}
             },
         }
 
