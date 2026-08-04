@@ -65,7 +65,7 @@ AUTO_PLAY_STEP_DELAY = 1.5
 class FmsTesterApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("FMS 車機模擬器 & 狀態視覺化工具_v0.61")
+        self.title("FMS 車機模擬器 & 狀態視覺化工具_v0.7")
         self.geometry("1200x780")
         self.minsize(1000, 650)
 
@@ -262,13 +262,15 @@ class FmsTesterApp(tk.Tk):
                    command=lambda: self._load_flow_preset("TBOX_LOW_BATTERY")).grid(row=4, column=2, **b)
         ttk.Button(flow_group, text="D-異. 逾時熄火 ❌",
                    command=lambda: self._load_flow_preset("SHUTDOWN_TIMEOUT")).grid(row=4, column=3, **b)
+        ttk.Button(flow_group, text="E. TBOX 熄火確認 ✅（開放重啟）",
+                   command=lambda: self._load_flow_preset("TBOX_ENGINE_OFF")).grid(row=5, column=1, columnspan=2, **b)
 
         for i in range(1, 4):
             flow_group.columnconfigure(i, weight=1)
 
         # 自動播放按鈕
         auto_row = ttk.Frame(flow_group)
-        auto_row.grid(row=5, column=0, columnspan=4, sticky=tk.EW, pady=(10, 0))
+        auto_row.grid(row=6, column=0, columnspan=4, sticky=tk.EW, pady=(10, 0))
         auto_row.columnconfigure(0, weight=1)
         auto_row.columnconfigure(1, weight=1)
 
@@ -285,7 +287,7 @@ class FmsTesterApp(tk.Tk):
         self.btn_auto_play_fail.grid(row=0, column=1, padx=(4, 0), sticky=tk.EW)
 
         self.lbl_auto_status = ttk.Label(flow_group, text="", foreground="#718096", font=("Helvetica", 8))
-        self.lbl_auto_status.grid(row=6, column=0, columnspan=4, sticky=tk.W, pady=(4, 0))
+        self.lbl_auto_status.grid(row=7, column=0, columnspan=4, sticky=tk.W, pady=(4, 0))
 
         # ── 4. MQTT Payload 編輯器 ────────────────────────────────────────────
         payload_group = ttk.LabelFrame(parent, text=" 4. MQTT Inform Payload 編輯器 ", padding=10)
@@ -578,7 +580,7 @@ class FmsTesterApp(tk.Tk):
         threading.Thread(target=self._auto_play_fail, daemon=True).start()
 
     def _auto_play_success(self):
-        """完整成功流程自動播放：A → B → Gate2 → C → C+ → C+(再一次) → D
+        """完整成功流程自動播放：A → B → Gate2 → C → C+(x2) → D → E
 
         ⚠️  C+ 需要發送兩次的原因：
         後端 handleTboxInform 的 IGNITING case 在 markIgnited()（IGNITING→RUNNING）
@@ -594,6 +596,7 @@ class FmsTesterApp(tk.Tk):
             ("TBOX_ENGINE_CONFIRM",  "C+. TBOX 轉速確認（第1次）→ markIgnited"),
             ("TBOX_ENGINE_CONFIRM",  "C+. TBOX 轉速確認（第2次）→ completeCheck ⚠️ workaround"),
             ("SHUTDOWN_CMD",         "D. 正常熄火（SRDT）"),
+            ("TBOX_ENGINE_OFF",      "E. TBOX 熄火確認 → can_restart = true"),
         ]
         self._run_auto_play(steps)
 
