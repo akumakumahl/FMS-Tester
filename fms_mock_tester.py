@@ -54,7 +54,7 @@ DEFAULT_MQTT_PORT    = _EXTERNAL_CONFIG.get("mqtt_port", 8883)
 DEFAULT_MQTT_USER    = _EXTERNAL_CONFIG.get("mqtt_user", "")
 DEFAULT_MQTT_PASS    = _EXTERNAL_CONFIG.get("mqtt_pass", "")
 DEFAULT_WS_URL       = _EXTERNAL_CONFIG.get("ws_url", "wss://mqtt-gateway-stage.hino-itraq.com.tw/ws")
-DEFAULT_API_BASE_URL = _EXTERNAL_CONFIG.get("api_base_url", "http://localhost:3000")
+DEFAULT_API_BASE_URL = _EXTERNAL_CONFIG.get("api_base_url", "https://mqtt-gateway-stage.hino-itraq.com.tw")
 DEFAULT_DEVICE_ID    = "111112222239999"
 DEFAULT_TOPIC_TEMPLATE = _EXTERNAL_CONFIG.get("topic_template", "v1/remote-start/status/{device_id}")
 
@@ -192,8 +192,8 @@ class FmsTesterApp(tk.Tk):
         session_top.columnconfigure(1, weight=1)
 
         ttk.Label(session_top, text="目前 Session ID:").grid(row=0, column=0, padx=(0, 8), sticky=tk.W)
-        self.lbl_session_id = ttk.Label(session_top, text="（尚未建立）", foreground="#718096")
-        self.lbl_session_id.grid(row=0, column=1, sticky=tk.W)
+        self.entry_session_id = ttk.Entry(session_top)
+        self.entry_session_id.grid(row=0, column=1, sticky=tk.EW)
 
         btn_session_row = ttk.Frame(session_group)
         btn_session_row.pack(fill=tk.X, pady=(8, 0))
@@ -416,16 +416,18 @@ class FmsTesterApp(tk.Tk):
             self._set_widget(self.btn_create_session, state="normal", text="🚗 建立 Session（模擬使用者按下啟動）")
 
     def _update_session_label(self, session_id: str):
-        self.lbl_session_id.config(text=session_id, foreground="#2F855A")
+        self.entry_session_id.delete(0, tk.END)
+        self.entry_session_id.insert(0, session_id)
 
     def _clear_session(self):
         self.current_session_id = None
-        self.lbl_session_id.config(text="（尚未建立）", foreground="#718096")
+        self.entry_session_id.delete(0, tk.END)
         self.log("SESSION", "Session ID 已清除，後續 Inform 將使用 payload 內的 sid 欄位（或預設值）")
 
     def _get_current_sid(self) -> str:
-        """取得目前有效的 sid：優先用已建立的 Session，沒有則用預設值。"""
-        return self.current_session_id or "00000000000000000000000000"
+        """取得目前有效的 sid：優先讀取輸入框的值，沒有則用預設值。"""
+        sid = self.entry_session_id.get().strip()
+        return sid if sid else "00000000000000000000000000"
 
     # =========================================================================
     # 流程步驟 Preset（對齊 V0.0.0.6）
@@ -917,7 +919,9 @@ class FmsTesterApp(tk.Tk):
         self.btn_auto_play_fail.config(state="normal")
         self.lbl_status_mqtt.config(text="MQTT: 未連線", bg="#E53E3E")
         self.lbl_status_ws.config(text="WebSocket: 未連線", bg="#E53E3E")
-        self.lbl_session_id.config(text="（尚未建立）", foreground="#718096")
+        
+        self.entry_session_id.delete(0, tk.END)
+        
         self.lbl_auto_status.config(text="")
         self._reset_vehicle_ui()
         self.log("SYSTEM", "已重置所有連線與狀態")
